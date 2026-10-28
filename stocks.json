@@ -7,7 +7,8 @@
       "sector": "반도체 기판 검사장비",
       "price_start": "2023-05-24",
       "fin_start": 2016,
-      "consensus_eps_12m": null
+      "consensus_eps_12m": 6008,
+      "consensus_note": "iM·메리츠·다올 평균, 10/28 입력"
     }
   ]
 }

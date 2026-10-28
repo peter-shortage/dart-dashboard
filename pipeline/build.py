@@ -358,6 +358,8 @@ def build_stock(stock):
         "per_ttm": round(per, 1) if per else None,
         "per_note": "적자" if ni_ttm is not None and ni_ttm <= 0 else None,
         "fper_12m": round(price / fwd_eps, 1) if price and fwd_eps else None,
+        "fper_note": stock.get("consensus_note"),
+        "fwd_eps": fwd_eps,
         "pbr": round(div(mktcap, equity_owner), 2) if div(mktcap, equity_owner) else None,
         "eps_ttm": round(eps_ttm) if eps_ttm is not None else None,
         "bps": round(div(equity_owner, shares)) if div(equity_owner, shares) else None,

@@ -56,6 +56,7 @@ nav.chips a:hover { text-decoration: none; border-color: var(--line-strong); col
 .check.danger { background: var(--danger-bg); } .check.danger b { color: var(--danger); }
 
 section.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin: 16px 0; scroll-margin-top: 110px; }
+section.card:empty { display: none; }
 section.card > h2 { display: flex; align-items: baseline; gap: 10px; margin: 0 0 14px; font-size: 18px; font-weight: 700; }
 section.card > h2 .no { color: var(--text-3); font-weight: 600; font-size: 14px; }
 section.card > h2 .sub { margin-left: auto; color: var(--text-3); font-weight: 400; font-size: 12px; }
@@ -223,6 +224,7 @@ footer { color: var(--text-3); font-size: 12px; padding: 24px 0 48px; }
     <div class="ai" data-ai="financial" style="margin-top:16px"></div>
   </section>
 
+  <section class="card" id="ai-sources" style="font-size:13px"></section>
   <footer id="footer"></footer>
 </main>
 
@@ -359,7 +361,7 @@ function render() {
     kpi("상장주식수", `${nf(o.shares)}주`),
     kpi("52주 최고 / 최저", `<span style="font-size:15px">${nf(o.high_52w)} / ${nf(o.low_52w)}</span>`),
     kpi("PER (TTM)", perTxt, "최근 4개 분기 순이익"),
-    kpi("12M Forward PER", o.fper_12m != null ? `${nf(o.fper_12m, 1)}배` : "-", o.fper_12m != null ? "컨센서스 EPS 기준" : "컨센서스 입력 필요"),
+    kpi("12M Forward PER", o.fper_12m != null ? `${nf(o.fper_12m, 1)}배` : "-", o.fper_12m != null ? `선행 EPS ${nf(o.fwd_eps)}원 · ${esc(o.fper_note || "컨센서스")}` : "컨센서스 입력 필요"),
     kpi("PBR", o.pbr != null ? `${nf(o.pbr, 2)}배` : "-"),
     kpi("EPS (TTM)", `${nf(o.eps_ttm)}원`),
     kpi("BPS", `${nf(o.bps)}원`),
@@ -420,6 +422,10 @@ function render() {
     else if (key !== "financial") el.innerHTML = `<div class="placeholder">AI 분석이 아직 작성되지 않았어요. Claude에게 "${esc(meta.name)} 분석 업데이트"를 요청하면 채워져요.</div>`;
   });
 
+  if (A?.sources?.length) {
+    $("#ai-sources").innerHTML = `<h3>AI 분석 참고 자료</h3><div class="foot" style="margin:0 0 8px">${esc(A.basis || "")}</div><ul class="list">` +
+      A.sources.map(x => `<li>${x.url ? `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title)}</a>` : esc(x.title)}</li>`).join("") + "</ul>";
+  }
   $("#footer").innerHTML = `자료: 금융감독원 OpenDART, 한국거래소 KRX Open API · 재무제표 기준 ${meta.fs_div.map(f => f === "CFS" ? "연결" : "별도").join("/")} · <a href="https://dart.fss.or.kr/dsab007/main.do?option=corp&textCrpNm=${encodeURIComponent(meta.name)}" target="_blank" rel="noopener">DART에서 보기</a>`;
 }
 
