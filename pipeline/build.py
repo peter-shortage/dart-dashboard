@@ -120,16 +120,18 @@ def build_financials(code):
             continue
         fs_used.add(data.get("fs_div"))
         cur = extract(rows, "thstrm_amount")
+        cur["fs"] = data.get("fs_div")
         if tag == "FY":
             annual[year] = cur
             # 사업보고서에 실린 전기·전전기 값은 해당 연도 보고서가 없을 때만 사용
             for back, field in ((1, "frmtrm_amount"), (2, "bfefrmtrm_amount")):
                 prev = extract(rows, field)
-                if any(v is not None for v in prev.values()):
+                prev["fs"] = data.get("fs_div")
+                if any(v is not None for k, v in prev.items() if k != "fs"):
                     prior.setdefault(year - back, prev)
         else:
             cum = extract(rows, "thstrm_add_amount")
-            quarters[(year, int(tag[1]))] = {"cur": cur, "cum": cum}
+            quarters[(year, int(tag[1]))] = {"cur": cur, "cum": cum, "fs": data.get("fs_div")}
 
     for y, v in prior.items():
         annual.setdefault(y, v)
@@ -159,6 +161,7 @@ def build_financials(code):
                     rec[k] = e["cur"][k]
                 for k in BS_KEYS:
                     rec[k] = e["cur"][k]
+                rec["fs"] = e["fs"]
                 for k in CF_KEYS:  # 현금흐름은 누적값 → 직전 분기 누적을 빼서 분기값
                     prev = None if q == 1 else quarters.get((y, q - 1), {}).get("cur", {}).get(k)
                     rec[k] = e["cur"][k] if q == 1 else _sub(e["cur"][k], prev)
@@ -170,6 +173,7 @@ def build_financials(code):
                     rec[k] = _sub(a[k], is_cum(y, 3, k))
                 for k in BS_KEYS:
                     rec[k] = a[k]
+                rec["fs"] = a.get("fs")
                 for k in CF_KEYS:
                     rec[k] = _sub(a[k], quarters[(y, 3)]["cur"][k])
             rec["period"] = f"{y}Q{q}"
@@ -222,6 +226,7 @@ def build_dividends(code):
     for path in sorted((RAW / "dart" / code).glob("div_*.json")):
         year = int(path.stem.split("_")[1])
         rec = {"year": year, "dps": None, "payout": None, "yield": None, "eps": None}
+        total_div, ni_cons, ni_sep = None, None, None
         for r in (read_json(path) or {}).get("list", []):
             se = norm(r.get("se"))
             kind = r.get("stock_knd") or ""
@@ -234,6 +239,15 @@ def build_dividends(code):
                 rec["yield"] = v
             elif "주당순이익" in se and rec["eps"] is None:
                 rec["eps"] = v
+            elif se.startswith("현금배당금총액"):
+                total_div = v
+            elif "(연결)당기순이익" in se:
+                ni_cons = v
+            elif "(별도)당기순이익" in se:
+                ni_sep = v
+        ni = ni_cons if ni_cons is not None else ni_sep
+        if rec["payout"] is None and total_div and ni and ni > 0:
+            rec["payout"] = round(total_div / ni * 100, 1)
         if any(rec[k] is not None for k in ("dps", "payout", "eps")):
             out.append(rec)
     return out
