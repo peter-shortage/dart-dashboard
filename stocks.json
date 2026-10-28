@@ -1,0 +1,13 @@
+{
+  "stocks": [
+    {
+      "code": "420770",
+      "name": "기가비스",
+      "market": "KOSDAQ",
+      "sector": "반도체 기판 검사장비",
+      "price_start": "2023-05-24",
+      "fin_start": 2016,
+      "consensus_eps_12m": null
+    }
+  ]
+}

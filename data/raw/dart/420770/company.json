@@ -1,0 +1,21 @@
+{
+  "status": "000",
+  "message": "정상",
+  "corp_code": "00765569",
+  "corp_name": "기가비스(주)",
+  "corp_name_eng": "GigaVis Co., Ltd.",
+  "stock_name": "기가비스",
+  "stock_code": "420770",
+  "ceo_nm": "강해철",
+  "corp_cls": "K",
+  "jurir_no": "1345110078029",
+  "bizr_no": "1358168528",
+  "adres": "경기도 화성시 동탄구 동탄산단3길 20-5 -",
+  "hm_url": "www.gigavis.com",
+  "ir_url": "",
+  "phn_no": "031-615-2199",
+  "fax_no": "031-615-2299",
+  "induty_code": "292",
+  "est_dt": "20040218",
+  "acc_mt": "12"
+}
